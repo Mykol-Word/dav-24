@@ -1,0 +1,11 @@
+# ignore Quartus generated files
+*.bak
+*.rpt
+*.qsf
+*.qws
+
+# ignore Quartus generate folders
+db
+incremental_db
+output_files
+simulation
