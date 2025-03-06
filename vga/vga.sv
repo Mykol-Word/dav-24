@@ -18,14 +18,11 @@ module vga(
 	output logic vsync,
     // expects 12 bits for color
 	output logic [3:0] red,
+	
 	output logic [3:0] green,
 	output logic [3:0] blue
 );
-	
-	/*  TODO(1): VGA protocol constants
-        Fill out the constants below with the correct values. 
-        You can find these described in the VGA specification for a 640x480 display.
-	*/
+
 	localparam HPIXELS  = 640;    // number of visible pixels per horizontal line
 	localparam HFP      = 16;    // length (in pixels) of horizontal front porch
 	localparam HSPULSE  = 96;    // length (in pixels) of hsync pulse
@@ -38,20 +35,14 @@ module vga(
 	localparam VBP      = 33;    // length (in pixels) of vertical back porch
 	localparam VTOTAL   = 525; // total pixels
 	
-	/* no need to mess with this -- this is a basic sanity check that will
-	 * cause the compiler to yell at you if the values above don't add up
-	 */
+	// make sure values add up
 	initial begin
 		if (HPIXELS + HFP + HSPULSE + HBP != 800 || VPIXELS + VFP + VSPULSE + VBP != 525) begin
 			$error("Expected horizontal pixels to add up to 800 and vertical pixels to add up to 525");
 		end
 	end
 	
-	/* these registers are for storing the horizontal & vertical counters
-	    we're outputting the counter values from this module so that 
-            other modules can stay in sync with the VGA
-	    (it's a surprise tool that will help us later!)
-	 */
+	// horizontal and vertical counters
 	logic [9:0] hc;
 	logic [9:0] vc;
 	
@@ -63,13 +54,9 @@ module vga(
 	assign hc_out = hc;
 	assign vc_out = vc;
 	
-   // in the sequential block, we update hc and vc based on their current values
+   // Update hc and vc
 	always_ff @(posedge vgaclk) begin
-		/* TODO(2): update the counters, paying careful attention to
-            a) the reset condition, and
-            b) the conditions that cause hc and vc to go back to 0
-		*/
-		if (rst == 0) begin
+		if (rst == 'b1) begin
 			hc <= 0;
 			vc <= 0;
 		end
@@ -86,20 +73,15 @@ module vga(
 			hc <= hc + 1;
 	end
 	
-	/* TODO(3): when should hsync and vsync go low?
-	*/
 	
+	//Set hsycn and vsync to low in blanking area
 	assign hsync = (hc >= HPIXELS + HFP && hc < HPIXELS + HFP + HSPULSE) ? 0 : 1;
 	assign vsync = (vc >= VPIXELS + VFP && vc < VPIXELS + VFP + VSPULSE) ? 0 : 1;
 	
-   // in the combinational block, we set red, green, blue outputs
+   //set red, green, blue outputs
 	always_comb begin
-		/*  TODO(4): check if we're within the active video range;
-		        if we are, drive the RGB outputs with the input color values
-		        if not, we're in the blanking interval, so set them all to 0
-		    NOTE: our inputs are fewer bits than the outputs, so left-shift accordingly!
-		*/
-		if(hc <= HPIXELS && vc <= VPIXELS) begin
+		//Unideal conversion
+		if(hc < HPIXELS && vc < VPIXELS) begin
         red = input_red << 1;
         green = input_green << 1;
         blue = input_blue << 2;
@@ -109,7 +91,6 @@ module vga(
 			green = 0;
 			blue = 0;
 		end
-		
 	end
 
 endmodule

@@ -8,3 +8,5 @@ module buzzer(
 	clock_divider clk_div(.clk(clk), .speed(freq), .rst(rst), .out_clk(buzz_clk));
 	
 endmodule
+
+//TODO: Finish. Incomplete as of now
