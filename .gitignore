@@ -1,7 +1,6 @@
 # ignore Quartus generated files
 *.bak
 *.rpt
-*.qsf
 *.qws
 
 # ignore Quartus generate folders
